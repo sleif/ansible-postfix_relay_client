@@ -1,0 +1,6 @@
+---
+
+postfix_relay_client_relayhost: 'mailhost.example.com'
+postfix_relay_client_relayhost_port: '25'
+postfix_relay_client_relayhost_user: ''
+postfix_relay_client_relayhost_myorigin: 'example.com'
