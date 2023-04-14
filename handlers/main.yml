@@ -1,19 +1,19 @@
 ---
 
-- name: postmap_sasl_password
-  command: /usr/sbin/postmap /etc/postfix/sasl_passwd
+- name: Postmap_sasl_password
+  ansible.builtin.command: /usr/sbin/postmap /etc/postfix/sasl_passwd
 
-- name: postmap_tls_policy
-  command: /usr/sbin/postmap /etc/postfix/tls_policy
+- name: Postmap_tls_policy
+  ansible.builtin.command: /usr/sbin/postmap /etc/postfix/tls_policy
 
-- name: reload_postfix
-  service:
+- name: Reload_postfix
+  ansible.builtin.service:
     name: postfix
     state: reloaded
   notify:
     - send_test_mail
 
-- name: send_test_mail
-  shell: echo "test 23" | mail -s "test23 {{ ansible_fqdn }}" root
+- name: Send_test_mail
+  ansible.builtin.shell: echo "test 23" | mail -s "test23 {{ ansible_fqdn }}" root
   args:
     executable: /bin/bash

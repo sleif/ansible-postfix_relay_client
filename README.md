@@ -1,28 +1,23 @@
-sleif.postfix_relay_client
-============
+# sleif.postfix_relay_client
 
 This role configures postfix to act as a relay client.
 
-Requirements
-------------
+## Requirements
 
 - postfix installed
 
-Role Variables
---------------
+## Role Variables
 
 - postfix_relay_client_relayhost
 - postfix_relay_client_relayhost_port
 - postfix_relay_client_relayhost_user
 - postfix_relay_client_relayhost_myorigin
 
-Dependencies
-------------
+## Dependencies
 
 - NA
 
-Example Playbook
-----------------
+## Example Playbook
 
     - hosts: "server"
       user: root
@@ -34,12 +29,10 @@ Example Playbook
       roles:
         - { role: sleif.postfix_relay_client, tags: "postfix_relay_client" }
 
-License
--------
+## License
 
 MIT
 
-Author Information
-------------------
+## Author Information
 
 Created in 2021 by Sebastian Berthold
