@@ -1,11 +1,29 @@
 ---
 # postfix_relay_client/tasks/main.yml
 
-- name: install postfix
-  package:
+- name: Check for OS specific var files
+  # local_action: stat path="{{ item }}"
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  # connection: local
+  with_items:
+    - "{{ role_path | default('/norule') }}/vars/{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version }}.yml"
+  register: _st
+  # become: no
+  delegate_to: localhost
+
+- name: "Postfix_relay_client | include_vars from os specific vars file"
+  ansible.builtin.include_vars: "{{ item.item }}"
+  with_items: "{{ _st.results }}"
+  when: item.stat.exists
+  loop_control:
+    label: "{{ item.invocation.module_args.path }}"
+
+- name: Install postfix
+  ansible.builtin.package:
     name:
       - postfix
-      - mailx
+      - "{{ package_name_mail }}"
     state: present
 
 # - name: setup root alias
@@ -15,11 +33,11 @@
 #     line: 'root: root@sleif.de'
 #   notify: reload_postfix
 
-- name: run postfix configuration (without backrefs)
-  lineinfile:
+- name: Run postfix configuration (without backrefs)
+  ansible.builtin.lineinfile:
     dest: /etc/postfix/main.cf
-    backup: True
-    backrefs: False
+    backup: true
+    backrefs: false
     line: "{{ item.line }}"
     regexp: "{{ item.regexp }}"
   with_items:
@@ -28,11 +46,11 @@
     - { line: 'mydestination = ', regexp: '^mydestination.*$' }
   notify: reload_postfix
 
-- name: run postfix configuration (with backrefs)
-  lineinfile:
+- name: Run postfix configuration (with backrefs)
+  ansible.builtin.lineinfile:
     dest: /etc/postfix/main.cf
-    backup: True
-    backrefs: True
+    backup: true
+    backrefs: true
     line: "{{ item.line }}"
     regexp: "{{ item.regexp }}"
   with_items:
@@ -41,15 +59,16 @@
     - { line: '\1 [::1]/128', regexp: '(^mynetworks =([\"\s]+(?!\[\:\:1\]\/128)[\w=\[\]\:\/\-\.]+)*)\s*$' }
   notify: reload_postfix
 
-- name: do sasl configuration for smtp with authentication
+- name: Do sasl configuration for smtp with authentication
+  when: postfix_relay_client_relayhost_user | length > 0
   block:
-    - name: install cyrus-sasl libs
-      package:
+    - name: Install cyrus-sasl libs
+      ansible.builtin.package:
         name: cyrus-sasl-plain
 
-    - name: define pw for postfix remote relay
-      lineinfile:
-        create: yes
+    - name: Define pw for postfix remote relay
+      ansible.builtin.lineinfile:
+        create: true
         path: /etc/postfix/sasl_passwd
         regexp: '^{{ postfix_relay_client_relayhost }}.*'
         line: '{{ postfix_relay_client_relayhost }} {{ postfix_relay_client_relayhost_user }}:{{ postfix_relay_client_relayhost_password }}'
@@ -58,9 +77,9 @@
         mode: '600'
       notify: postmap_sasl_password
 
-    - name: define tls policy for relay server
-      lineinfile:
-        create: yes
+    - name: Define tls policy for relay server
+      ansible.builtin.lineinfile:
+        create: true
         path: /etc/postfix/tls_policy
         regexp: '^\[{{ postfix_relay_client_relayhost }}\].*'
         line: '[{{ postfix_relay_client_relayhost }}]:{{ postfix_relay_client_relayhost_port }} encrypt'
@@ -69,11 +88,11 @@
         mode: '600'
       notify: postmap_tls_policy
 
-    - name: run postfix configuration (without backrefs)
-      lineinfile:
+    - name: Run postfix configuration (without backrefs)
+      ansible.builtin.lineinfile:
         dest: /etc/postfix/main.cf
-        backup: True
-        backrefs: False
+        backup: true
+        backrefs: false
         line: "{{ item.line }}"
         regexp: "{{ item.regexp }}"
       with_items:
@@ -83,10 +102,8 @@
         - { line: 'smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd', regexp: '^smtp_sasl_password_maps.*$' }
       notify: reload_postfix
 
-  when: postfix_relay_client_relayhost_user | length > 0
-
-- name: enable and start postfix service
-  service:
+- name: Enable and start postfix service
+  ansible.builtin.service:
     name: postfix
     state: started
-    enabled: yes
+    enabled: true
