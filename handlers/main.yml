@@ -2,18 +2,26 @@
 
 - name: Postmap_sasl_password
   ansible.builtin.command: /usr/sbin/postmap /etc/postfix/sasl_passwd
+  register: _result
+  changed_when: _result is success
 
 - name: Postmap_tls_policy
   ansible.builtin.command: /usr/sbin/postmap /etc/postfix/tls_policy
+  register: _result
+  changed_when: _result is success
 
 - name: Reload_postfix
   ansible.builtin.service:
     name: postfix
     state: reloaded
   notify:
-    - send_test_mail
+    - Send_test_mail
 
 - name: Send_test_mail
-  ansible.builtin.shell: echo "test 23" | mail -s "test23 {{ ansible_fqdn }}" root
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "test 23" | mail -s "test23 {{ ansible_fqdn }}" root
   args:
     executable: /bin/bash
+  register: _result
+  changed_when: _result is success

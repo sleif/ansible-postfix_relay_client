@@ -26,13 +26,6 @@
       - "{{ package_name_mail }}"
     state: present
 
-# - name: setup root alias
-#   lineinfile:
-#     path: /etc/aliases
-#     regexp: '^root:'
-#     line: 'root: root@sleif.de'
-#   notify: reload_postfix
-
 - name: Run postfix configuration (without backrefs)
   ansible.builtin.lineinfile:
     dest: /etc/postfix/main.cf
@@ -44,7 +37,7 @@
     - {line: 'myorigin = {{ postfix_relay_client_relayhost_myorigin }}', regexp: '^myorigin.*$'}
     - {line: 'relayhost = [{{ postfix_relay_client_relayhost }}]:{{ postfix_relay_client_relayhost_port }}', regexp: '^relayhost.*$'}
     - {line: 'mydestination = ', regexp: '^mydestination.*$'}
-  notify: reload_postfix
+  notify: Reload_postfix
 
 - name: Run postfix configuration (with backrefs)
   ansible.builtin.lineinfile:
@@ -57,7 +50,7 @@
     - {line: '\1 127.0.0.0/8', regexp: '(^mynetworks =([\"\s]+(?!127\.0\.0\.0\/8)[\w=\[\]\:\/\-\.]+)*)\s*$'}
     - {line: '\1 [::ffff:127.0.0.0]/104', regexp: '(^mynetworks =([\"\s]+(?!\[\:\:ffff\:127\.0\.0\.0\]\/104)[\w=\[\]\:\/\-\.]+)*)\s*$'}
     - {line: '\1 [::1]/128', regexp: '(^mynetworks =([\"\s]+(?!\[\:\:1\]\/128)[\w=\[\]\:\/\-\.]+)*)\s*$'}
-  notify: reload_postfix
+  notify: Reload_postfix
 
 - name: Do sasl configuration for smtp with authentication
   when: postfix_relay_client_relayhost_user | length > 0
@@ -75,7 +68,8 @@
         owner: root
         group: root
         mode: '600'
-      notify: postmap_sasl_password
+      no_log: true
+      notify: Postmap_sasl_password
 
     - name: Define tls policy for relay server
       ansible.builtin.lineinfile:
@@ -86,7 +80,7 @@
         owner: root
         group: root
         mode: '600'
-      notify: postmap_tls_policy
+      notify: Postmap_tls_policy
 
     - name: Run postfix configuration (without backrefs)
       ansible.builtin.lineinfile:
@@ -100,7 +94,7 @@
         - {line: 'smtp_sasl_auth_enable = yes', regexp: '^smtp_sasl_auth_enable.*$'}
         - {line: 'smtp_sasl_security_options = noanonymous', regexp: '^smtp_sasl_security_options.*$'}
         - {line: 'smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd', regexp: '^smtp_sasl_password_maps.*$'}
-      notify: reload_postfix
+      notify: Reload_postfix
 
 - name: Enable and start postfix service
   ansible.builtin.service:
