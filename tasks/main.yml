@@ -96,6 +96,9 @@
         - {line: 'smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd', regexp: '^smtp_sasl_password_maps.*$'}
       notify: Reload_postfix
 
+- name: meta flush handlers
+  ansible.builtin.meta: flush_handlers
+
 - name: Enable and start postfix service
   ansible.builtin.service:
     name: postfix
