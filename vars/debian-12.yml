@@ -1,0 +1,5 @@
+---
+
+package_name_mail: s-nail
+package_name_sasl: sasl2-bin
+mail_command: s-nail

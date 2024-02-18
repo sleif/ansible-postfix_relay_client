@@ -20,7 +20,7 @@
 - name: Send_test_mail
   ansible.builtin.shell: |
     set -o pipefail
-    echo "test 23" | mail -s "test23 {{ ansible_fqdn }}" root
+    echo "test 23" | {{ mail_command | d('mail') }} -s "test23 {{ ansible_fqdn }}" root
   args:
     executable: /bin/bash
   register: _result

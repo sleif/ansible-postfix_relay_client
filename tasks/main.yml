@@ -57,7 +57,7 @@
   block:
     - name: Install cyrus-sasl libs
       ansible.builtin.package:
-        name: cyrus-sasl-plain
+        name: "{{ package_name_sasl }}"
 
     - name: Define pw for postfix remote relay
       ansible.builtin.lineinfile:
