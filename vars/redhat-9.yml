@@ -1,3 +1,4 @@
 ---
 
 package_name_mail: s-nail
+package_name_sasl: cyrus-sasl-plain
