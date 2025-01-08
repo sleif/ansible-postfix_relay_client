@@ -7,6 +7,7 @@
     path: "{{ item }}"
   # connection: local
   with_items:
+    - "{{ role_path | default('/norule') }}/vars/{{ ansible_os_family | lower }}.yml"
     - "{{ role_path | default('/norule') }}/vars/{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version }}.yml"
   register: _st
   # become: no
@@ -57,7 +58,7 @@
   block:
     - name: Install cyrus-sasl libs
       ansible.builtin.package:
-        name: "{{ package_name_sasl }}"
+        name: "{{ packages_sasl }}"
 
     - name: Define pw for postfix remote relay
       ansible.builtin.lineinfile:

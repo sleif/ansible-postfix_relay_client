@@ -1,4 +1,5 @@
 ---
 
 package_name_mail: mailx
-package_name_sasl: cyrus-sasl-plain
+packages_sasl:
+  - cyrus-sasl-plain

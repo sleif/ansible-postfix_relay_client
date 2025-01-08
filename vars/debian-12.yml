@@ -1,5 +1,7 @@
 ---
 
 package_name_mail: s-nail
-package_name_sasl: sasl2-bin
+packages_sasl:
+  - sasl2-bin
+  - libsasl2-modules
 mail_command: s-nail
