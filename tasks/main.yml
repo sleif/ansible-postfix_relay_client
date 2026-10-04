@@ -13,8 +13,6 @@
   # become: no
   delegate_to: localhost
 
-- debug: var=_st
-- pause:
 - name: "Postfix_relay_client | include_vars from os specific vars file"
   ansible.builtin.include_vars: "{{ item.item }}"
   with_items: "{{ _st.results }}"
